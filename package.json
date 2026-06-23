@@ -1,71 +1,16 @@
-import Anthropic from '@anthropic-ai/sdk'
-
-export const maxDuration = 60
-
-export async function POST(req) {
-  try {
-    const { imageBase64, mediaType, market, marketLabel } = await req.json()
-
-    if (!imageBase64 || !market) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 })
-    }
-
-    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
-    const prompt = `Sei un trader professionista con 10 anni di esperienza, esperto in analisi tecnica ICT (Inner Circle Trader) e Smart Money Concepts (SMC).
-
-Analizza questo grafico di ${marketLabel} e fornisci un'analisi di trading completa.
-
-Considera attentamente:
-- La struttura del mercato (trend, BOS, CHoCH)
-- Order Blocks (OB) bullish e bearish
-- Fair Value Gaps (FVG)
-- Liquidity pools e sweep
-- Sessioni di trading visibili
-- Timeframe del grafico
-
-Rispondi ESCLUSIVAMENTE con un oggetto JSON valido, zero testo fuori dal JSON, zero markdown:
-
 {
-  "direction": "LONG" oppure "SHORT",
-  "confidence": numero intero da 1 a 100,
-  "reasoning": "spiegazione concisa in italiano del setup identificato (max 2 frasi)",
-  "setup": "nome del pattern ICT/SMC principale (es: Bullish OB, FVG Fill, Liquidity Sweep, BOS Retest)",
-  "timeframe": "timeframe stimato visibile nel grafico (es: M15, H1, H4)",
-  "session": "sessione di trading (London, New York, Asia, o Overlap)",
-  "entry_zone": "descrizione della zona di entrata (es: 19850-19870)",
-  "sl_pips": numero intero (stop loss in punti/pips dalla entry),
-  "tp1_pips": numero intero (primo TP in punti, rapporto 1:1.5),
-  "tp2_pips": numero intero (secondo TP in punti, rapporto 1:2.5),
-  "tp3_pips": numero intero (terzo TP in punti, rapporto 1:4),
-  "key_levels": ["livello chiave 1", "livello chiave 2", "livello chiave 3"],
-  "invalidation": "condizione che invalida il setup"
-}`
-
-    const response = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 1024,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: imageBase64 },
-            },
-            { type: 'text', text: prompt },
-          ],
-        },
-      ],
-    })
-
-    const text = response.content.map((b) => b.text || '').join('')
-    const clean = text.replace(/```json|```/g, '').trim()
-    const parsed = JSON.parse(clean)
-
-    return Response.json({ success: true, analysis: parsed })
-  } catch (err) {
-    console.error('Analyze error:', err)
-    return Response.json({ error: err.message || 'Analysis failed' }, { status: 500 })
+  "name": "samuel-ai",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "^18",
+    "react-dom": "^18",
+    "@anthropic-ai/sdk": "^0.24.0"
   }
 }
